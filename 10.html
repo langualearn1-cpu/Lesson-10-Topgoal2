@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ورقة عمل شهور السنة التفاعلية - Glory English Academy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: radial-gradient(circle at top, #fef9c3 0%, #ecfeff 50%, #f0fdf4 100%);
+      min-height: 100vh;
+      color: #1e293b;
+      touch-action: manipulation;
+    }
+
+    .en-font {
+      font-family: 'Fredoka', 'Comic Sans MS', cursive, sans-serif;
+    }
+
+    /* Worksheet Main Board Styling */
+    .worksheet-board {
+      background: #ffffff;
+      border: 4px solid #0284c7;
+      border-radius: 28px;
+      box-shadow: 0 20px 40px -15px rgba(2, 132, 199, 0.25), 0 0 0 8px #e0f2fe;
+    }
+
+    /* Title 3D letters effect */
+    .title-letter-shadow {
+      text-shadow: 2px 2px 0px rgba(0,0,0,0.12), -1px -1px 0px rgba(255,255,255,0.8);
+    }
+
+    /* Draggable Word Pill */
+    .word-pill {
+      cursor: grab;
+      user-select: none;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .word-pill:active {
+      cursor: grabbing;
+      transform: scale(0.95);
+    }
+    .word-pill.selected-pill {
+      box-shadow: 0 0 0 4px #fbbf24, 0 10px 15px -3px rgba(0,0,0,0.2);
+      transform: translateY(-3px) scale(1.05);
+      animation: pulseSelection 1.5s infinite;
+    }
+    @keyframes pulseSelection {
+      0%, 100% { box-shadow: 0 0 0 4px #fbbf24; }
+      50% { box-shadow: 0 0 0 7px #f59e0b; }
+    }
+    .word-pill.used-pill {
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(80%);
+      transform: scale(0.92);
+      border-style: dashed;
+    }
+
+    /* Drop Slots */
+    .drop-slot {
+      transition: all 0.25s ease;
+      min-height: 44px;
+    }
+    .drop-slot.drag-over {
+      background-color: #fef08a !important;
+      border-color: #f59e0b !important;
+      transform: scale(1.03);
+    }
+
+    /* Animations for Correct & Wrong Feedback */
+    @keyframes popSuccess {
+      0% { transform: scale(0.85); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+    .pop-success {
+      animation: popSuccess 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes shakeSlot {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+    .shake-slot {
+      animation: shakeSlot 0.45s ease-in-out;
+    }
+
+    /* Synchronized Audio Highlighting */
+    .sync-active-audio {
+      box-shadow: 0 0 0 4px #f59e0b, 0 0 25px rgba(245, 158, 11, 0.5) !important;
+      background-color: #fef3c7 !important;
+      transform: scale(1.04);
+      transition: all 0.2s ease;
+    }
+
+    /* Dotted line filler for printed worksheet effect */
+    .dotted-leader {
+      border-bottom: 3px dotted #94a3b8;
+      flex-grow: 1;
+      height: 18px;
+      margin: 0 6px;
+    }
+
+    /* Print styles */
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+      .worksheet-board { box-shadow: none !important; border-width: 2px !important; }
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4 md:p-6 lg:p-8 flex justify-center">
+
+  <div class="w-full max-w-4xl flex flex-col items-center">
+
+    <!-- Top Floating Toolbar (No Print) -->
+    <div class="no-print w-full flex flex-wrap items-center justify-between gap-3 bg-white/90 backdrop-blur-md px-4 py-3 rounded-2xl shadow-md border border-sky-200 mb-4">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-amber-100 text-amber-700 text-lg font-bold">
+          ⭐
+        </span>
+        <div>
+          <h1 class="text-sm sm:text-base font-black text-slate-800 leading-tight">ورقة عمل تفاعلية ناطقة</h1>
+          <p class="text-[11px] text-slate-500 font-medium">سحب وإفلات • استجابة فورية بالصوت والصورة</p>
+        </div>
+      </div>
+
+      <div class="flex items-center flex-wrap gap-2">
+        <!-- Read All In Order Button -->
+        <button id="readAllBtn" onclick="readAllMonthsInOrder()" class="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 active:scale-95 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm">
+          <span>🔊</span>
+          <span id="readAllBtnText">قراءة الشهور بالترتيب</span>
+        </button>
+
+        <!-- Test Canadian Audio -->
+        <button onclick="canadianSpeaker.testVoice()" class="px-3 py-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 text-xs font-bold flex items-center gap-1 transition">
+          <span>🇨🇦</span>
+          <span class="hidden sm:inline">نطق كندي</span>
+        </button>
+
+        <!-- Reset Button -->
+        <button onclick="resetWorksheet()" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold flex items-center gap-1 transition">
+          <span>🔄</span>
+          <span>إعادة حل</span>
+        </button>
+
+        <!-- Score Badge -->
+        <div class="px-3 py-1.5 rounded-xl bg-amber-500 text-white text-xs sm:text-sm font-black flex items-center gap-1 shadow-xs">
+          <span>النقاط:</span>
+          <span id="scoreDisplay">0 / 17</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- The Printable / Interactive Worksheet Page -->
+    <main class="worksheet-board w-full p-4 sm:p-7 md:p-9 relative bg-white overflow-hidden">
+      
+      <!-- Top Decorative Classroom Icons -->
+      <div class="absolute top-2 left-3 text-2xl select-none opacity-80">✏️</div>
+      <div class="absolute top-2 right-4 text-2xl select-none opacity-80">⭐</div>
+      <div class="absolute -left-6 top-48 w-12 text-slate-300 pointer-events-none select-none">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      </div>
+
+      <!-- HEADER SECTION: Name, Backpack, Date & Academy Logo -->
+      <header class="flex items-center justify-between gap-3 border-b-2 border-slate-100 pb-4 mb-5 flex-wrap sm:flex-nowrap">
+        
+        <!-- Left: Student Name Input -->
+        <div class="flex items-center gap-2 flex-1 min-w-[200px]" dir="ltr">
+          <span class="en-font font-extrabold text-slate-800 text-base sm:text-lg">Name:</span>
+          <input type="text" id="studentNameInput" placeholder="Write student name..." class="en-font flex-1 border-b-2 border-dotted border-slate-400 focus:border-sky-500 focus:outline-hidden px-2 py-0.5 text-base sm:text-lg font-bold text-sky-800 bg-transparent transition">
+        </div>
+
+        <!-- Center: Backpack Icon from image -->
+        <div class="flex items-center justify-center shrink-0 mx-2">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-b from-sky-400 to-sky-600 p-2 shadow-md border-2 border-white flex items-center justify-center transform hover:rotate-6 transition">
+            <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 8h-3V6c0-1.66-1.34-3-3-3h-4C8.34 3 7 4.34 7 6v2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-11-2c0-.55.45-1 1-1h4c.55 0 1 .45 1 1v2H9V6zm11 14H4v-8h16v8zm-2-6H6v-2h12v2z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Right: Date Input & Academy Circular Logo -->
+        <div class="flex items-center gap-3 justify-end flex-1 min-w-[220px]" dir="ltr">
+          <div class="flex items-center gap-1.5">
+            <span class="en-font font-extrabold text-slate-800 text-base sm:text-lg">Date:</span>
+            <input type="text" id="dateInput" value="2026 / 10 / 13" class="en-font w-28 sm:w-32 border-b-2 border-dotted border-slate-400 focus:border-sky-500 focus:outline-hidden px-1 py-0.5 text-center text-sm sm:text-base font-bold text-slate-700 bg-transparent">
+          </div>
+
+          <!-- Glory English Academy Circular Logo Badge -->
+          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-sky-500 bg-white p-1 shadow-sm flex flex-col items-center justify-center text-center shrink-0">
+            <span class="text-[8px] font-black uppercase text-sky-800 tracking-tighter leading-none">GLORY ENGLISH</span>
+            <span class="text-sm sm:text-base leading-none my-0.5">🎓📖</span>
+            <span class="text-[7px] font-extrabold uppercase text-sky-600 tracking-tighter leading-none">ACADEMY</span>
+          </div>
+        </div>
+
+      </header>
+
+      <!-- EXERCISE 1: ARRANGE THE MONTHS OF THE YEAR -->
+      <section class="mb-8" id="arrangeExerciseSection">
+        
+        <!-- Big Multi-Color Title -->
+        <div class="text-center mb-4">
+          <h2 class="en-font font-black text-2xl sm:text-3xl md:text-4xl tracking-wide flex items-center justify-center flex-wrap gap-2 title-letter-shadow" dir="ltr">
+            <span class="text-rose-600">Arrange</span>
+            <span class="text-sky-500">the months</span>
+            <span class="text-amber-500">of the year</span>
+            <span class="text-violet-600">in the correct order</span>
+            <span class="text-2xl sm:text-3xl">🗓️</span>
+          </h2>
+          <p class="text-xs sm:text-sm font-bold text-slate-500 mt-1" dir="rtl">
+            ⭐ اسحب شهور السنة أو انقر عليها وضعها بالترتيب الصحيح من الأول (1) إلى الثاني عشر (12)
+          </p>
+        </div>
+
+        <!-- Word Bank for Exercise 1 (12 Months Pills) -->
+        <div class="p-3.5 sm:p-4 rounded-3xl bg-slate-50 border-2 border-slate-300 shadow-inner mb-6">
+          <div class="flex items-center justify-between mb-2 px-1">
+            <span class="text-xs sm:text-sm font-black text-slate-700 flex items-center gap-1.5">
+              <span>🔤</span>
+              <span>صندوق كلمات الشهور (انقر أو اسحب):</span>
+            </span>
+            <span class="text-[11px] font-bold text-sky-600 bg-sky-50 border border-sky-200 px-2.5 py-0.5 rounded-full">
+              12 شهراً
+            </span>
+          </div>
+
+          <div id="arrangeWordBank" class="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5" dir="ltr">
+            <!-- Populated via JavaScript dynamically with colors matching worksheet -->
+          </div>
+        </div>
+
+        <!-- 12 Numbered Slots in 2 Columns matching worksheet -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3.5" dir="ltr">
+          
+          <!-- Left Column: Slots 1 to 6 -->
+          <div class="flex flex-col gap-3" id="arrangeColLeft">
+            <!-- Slots 1 to 6 rendered dynamically -->
+          </div>
+
+          <!-- Right Column: Slots 7 to 12 -->
+          <div class="flex flex-col gap-3" id="arrangeColRight">
+            <!-- Slots 7 to 12 rendered dynamically -->
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- EXERCISE 2: COMPLETE (FILL IN THE BLANKS) -->
+      <section class="mt-8 pt-6 border-t-4 border-dashed border-sky-200" id="completeExerciseSection">
+        
+        <!-- Exercise Title Stacked and Centered -->
+        <div class="flex flex-col items-center justify-center text-center mb-5 gap-1.5">
+          <h3 class="en-font font-black text-2xl sm:text-3xl md:text-4xl text-rose-500 flex items-center justify-center gap-2" dir="ltr">
+            <span>Complete:</span>
+            <span class="text-2xl sm:text-3xl">✏️</span>
+          </h3>
+          <p class="text-xs sm:text-sm font-bold text-slate-500" dir="rtl">
+            أكمل الفراغات باختيار الشهر المناسب لكل جملة
+          </p>
+        </div>
+
+        <!-- Exercise 2 Word Bank (5 Months) -->
+        <div class="p-3 sm:p-3.5 rounded-2xl bg-amber-50/70 border-2 border-amber-200 shadow-2xs mb-5">
+          <div class="flex items-center justify-between mb-2 px-1">
+            <span class="text-xs font-black text-amber-900 flex items-center gap-1.5">
+              <span>💡</span>
+              <span>اختر الشهر المناسب للجملة (5 شهور):</span>
+            </span>
+          </div>
+
+          <div id="completeWordBank" class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5" dir="ltr">
+            <!-- Populated via JavaScript -->
+          </div>
+        </div>
+
+        <!-- The 5 Sentences List with Image Icons -->
+        <div class="flex flex-col gap-3.5" id="completeSentencesList" dir="ltr">
+          <!-- Populated via JavaScript -->
+        </div>
+
+      </section>
+
+      <!-- BOTTOM WORKSHEET FOOTER: Pupils Studying, Saudi Flag, Page Circle 7 -->
+      <footer class="mt-10 pt-4 border-t-2 border-slate-100 flex items-center justify-between relative px-2 sm:px-6">
+        
+        <!-- Left Pupil: Boy studying with books -->
+        <div class="flex items-center gap-2 text-slate-600">
+          <div class="text-3xl sm:text-4xl animate-bounce" style="animation-duration: 2.5s;">👦🏻📚</div>
+          <div class="hidden sm:block text-[11px] font-bold text-slate-500" dir="rtl">
+            <span class="text-sky-700 font-extrabold">مُذاكرة ممتعة</span><br>
+            Glory English
+          </div>
+        </div>
+
+        <!-- Center Page Number 7 Badge -->
+        <div class="flex flex-col items-center">
+          <div class="w-12 h-12 rounded-full border-4 border-teal-500 bg-white flex items-center justify-center shadow-md transform hover:scale-110 transition">
+            <span class="en-font font-black text-2xl text-slate-800">7</span>
+          </div>
+          <span class="text-[10px] font-bold text-slate-400 mt-0.5">الصفحة</span>
+        </div>
+
+        <!-- Right Pupil: Girl with Saudi Flag -->
+        <div class="flex items-center gap-2 text-slate-600">
+          <div class="hidden sm:block text-[11px] font-bold text-emerald-800 text-left" dir="ltr">
+            <span class="font-extrabold">Saudi National Day</span><br>
+            September 23rd 🇸🇦
+          </div>
+          <div class="text-3xl sm:text-4xl transform hover:scale-110 transition">👧🏻🇸🇦</div>
+        </div>
+
+      </footer>
+
+    </main>
+
+    <!-- Bottom Action Ribbon -->
+    <div class="no-print w-full mt-4 flex items-center justify-center gap-3">
+      <button onclick="window.print()" class="px-5 py-2.5 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-300 text-slate-700 font-bold text-sm shadow-sm flex items-center gap-2 transition">
+        <span>🖨️</span>
+        <span>طباعة ورقة العمل</span>
+      </button>
+      <button onclick="checkAllAnswers()" class="px-6 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-md flex items-center gap-2 transition active:scale-95">
+        <span>✅</span>
+        <span>التحقق من جميع الإجابات</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Floating Toast Notification for Immediate Feedback -->
+  <div id="toastNotification" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 transform translate-y-28 opacity-0">
+    <div class="bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl border-2 border-sky-400 flex items-center gap-3 backdrop-blur-md">
+      <span id="toastIcon" class="text-2xl">✨</span>
+      <div>
+        <p id="toastTitle" class="text-sm font-black text-amber-300"></p>
+        <p id="toastMsg" class="text-xs text-slate-200 font-medium"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       AUDIO AND SPEECH SYNTHESIS ENGINE (CANADIAN ACCENT + ARABIC FEEDBACK)
+       ========================================================================= */
+
+    // Web Audio Synthesizer for instant, reliable chime sounds
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playSuccess() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.001, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.2, now + idx * 0.08 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.28);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.3);
+        });
+      }
+      playError() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [280, 220];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+          gain.gain.setValueAtTime(0.15, now + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.22);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.12);
+          osc.stop(now + idx * 0.12 + 0.24);
+        });
+      }
+      playPop() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(450, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.06);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      }
+    }
+    const sfx = new SoundFX();
+
+    // Canadian Voice Engine
+    class CanadianSpeaker {
+      constructor() {
+        this.synth = window.speechSynthesis;
+        this.canadianVoice = null;
+        this.initVoice();
+        if (this.synth && this.synth.onvoiceschanged !== undefined) {
+          this.synth.onvoiceschanged = () => this.initVoice();
+        }
+      }
+      initVoice() {
+        if (!this.synth) return;
+        const voices = this.synth.getVoices();
+        // Look for Canadian English female/standard voice
+        this.canadianVoice = voices.find(v => v.lang === 'en-CA' || v.lang.includes('CA') || (v.lang.startsWith('en') && v.name.toLowerCase().includes('canada')))
+          || voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('zira')))
+          || voices.find(v => v.lang.startsWith('en'))
+          || null;
+      }
+      speak(text, onEndCallback = null) {
+        if (!this.synth) {
+          if (onEndCallback) onEndCallback();
+          return;
+        }
+        this.synth.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        if (this.canadianVoice) utter.voice = this.canadianVoice;
+        utter.lang = 'en-CA';
+        utter.rate = 0.88; // Gentle, clear classroom speed
+        utter.pitch = 1.05;
+        utter.volume = 1.0;
+        if (onEndCallback) {
+          utter.onend = () => onEndCallback();
+          utter.onerror = () => onEndCallback();
+        }
+        this.synth.speak(utter);
+      }
+      testVoice() {
+        sfx.playPop();
+        this.speak("Hello students! Let's learn the months of the year together.");
+        showToast("النطق الكندي 🇨🇦", "تم تفعيل الصوت الكندي الإنجليزي بجودة واضحة", "🍁");
+      }
+    }
+    const canadianSpeaker = new CanadianSpeaker();
+
+    // Arabic Feedback Speaker ("الإجابة صحيحة" / "إجابة خاطئة")
+    function speakArabicFeedback(isCorrect, callback = null) {
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const phrase = isCorrect ? "الإجابة صحيحة" : "إجابة خاطئة";
+          const utter = new SpeechSynthesisUtterance(phrase);
+          utter.lang = 'ar-SA';
+          utter.rate = 0.95;
+          utter.pitch = 1.05;
+          utter.volume = 1.0;
+          const voices = window.speechSynthesis.getVoices();
+          const arVoice = voices.find(v => v.lang && (v.lang.startsWith('ar') || v.lang.includes('AR')));
+          if (arVoice) utter.voice = arVoice;
+          if (callback) {
+            utter.onend = () => callback();
+            utter.onerror = () => callback();
+          }
+          window.speechSynthesis.speak(utter);
+        } else if (callback) {
+          callback();
+        }
+      } catch (err) {
+        if (callback) callback();
+      }
+    }
+
+    /* =========================================================================
+       DATA STRUCTURES MATCHING THE WORKSHEET
+       ========================================================================= */
+
+    // 12 Months in the exact colors and display of the Word Bank in image_a7f3f7.jpg
+    const ARRANGE_PILLS = [
+      { name: "December", bg: "bg-rose-100", border: "border-rose-400", text: "text-rose-900" },
+      { name: "March", bg: "bg-lime-100", border: "border-lime-500", text: "text-lime-950" },
+      { name: "September", bg: "bg-amber-100", border: "border-amber-400", text: "text-amber-950" },
+      { name: "June", bg: "bg-emerald-100", border: "border-emerald-500", text: "text-emerald-950" },
+      { name: "April", bg: "bg-red-100", border: "border-red-400", text: "text-red-950" },
+      { name: "January", bg: "bg-sky-100", border: "border-sky-400", text: "text-sky-950" },
+      { name: "May", bg: "bg-cyan-100", border: "border-cyan-400", text: "text-cyan-950" },
+      { name: "August", bg: "bg-amber-200", border: "border-amber-500", text: "text-amber-950" },
+      { name: "November", bg: "bg-indigo-100", border: "border-indigo-400", text: "text-indigo-950" },
+      { name: "February", bg: "bg-orange-100", border: "border-orange-400", text: "text-orange-950" },
+      { name: "October", bg: "bg-orange-200", border: "border-orange-500", text: "text-orange-950" },
+      { name: "July", bg: "bg-fuchsia-100", border: "border-fuchsia-400", text: "text-fuchsia-950" }
+    ];
+
+    // Correct Chronological Order 1 to 12
+    const MONTHS_ORDER = [
+      { num: 1, name: "January", arabic: "يناير", badgeBg: "bg-pink-500" },
+      { num: 2, name: "February", arabic: "فبراير", badgeBg: "bg-sky-500" },
+      { num: 3, name: "March", arabic: "مارس", badgeBg: "bg-emerald-500" },
+      { num: 4, name: "April", arabic: "أبريل", badgeBg: "bg-amber-500" },
+      { num: 5, name: "May", arabic: "مايو", badgeBg: "bg-rose-500" },
+      { num: 6, name: "June", arabic: "يونيو", badgeBg: "bg-purple-600" },
+      { num: 7, name: "July", arabic: "يوليو", badgeBg: "bg-indigo-500" },
+      { num: 8, name: "August", arabic: "أغسطس", badgeBg: "bg-cyan-600" },
+      { num: 9, name: "September", arabic: "سبتمبر", badgeBg: "bg-teal-500" },
+      { num: 10, name: "October", arabic: "أكتوبر", badgeBg: "bg-amber-600" },
+      { num: 11, name: "November", arabic: "نوفمبر", badgeBg: "bg-red-500" },
+      { num: 12, name: "December", arabic: "ديسمبر", badgeBg: "bg-purple-800" }
+    ];
+
+    // Exercise 2: Complete Word Bank (5 Months)
+    const COMPLETE_PILLS = [
+      { name: "April", bg: "bg-pink-100", border: "border-pink-400", text: "text-pink-900" },
+      { name: "August", bg: "bg-emerald-100", border: "border-emerald-500", text: "text-emerald-950" },
+      { name: "September", bg: "bg-amber-100", border: "border-amber-400", text: "text-amber-950" },
+      { name: "February", bg: "bg-orange-100", border: "border-orange-400", text: "text-orange-950" },
+      { name: "January", bg: "bg-sky-100", border: "border-sky-400", text: "text-sky-950" }
+    ];
+
+    // Exercise 2: Sentences with exact icons and texts from image_a7f3f7.jpg
+    const COMPLETE_SENTENCES = [
+      {
+        id: 1,
+        correct: "August",
+        templateText: "is the hottest month in the year.",
+        fullText: "August is the hottest month in the year.",
+        arabicTrans: "شهر أغسطس هو أكثر شهور السنة حرارة.",
+        iconSvg: `<span class="text-2xl sm:text-3xl" title="الشمس والبحر الصيفي">☀️🌊</span>`
+      },
+      {
+        id: 2,
+        correct: "February",
+        templateText: "is the shortest month in the year.",
+        fullText: "February is the shortest month in the year.",
+        arabicTrans: "شهر فبراير هو أقصر شهور السنة.",
+        iconSvg: `<span class="text-2xl sm:text-3xl" title="تقويم أقصر الشهور">📅</span>`
+      },
+      {
+        id: 3,
+        correct: "January",
+        templateText: "is the first month in the year.",
+        fullText: "January is the first month in the year.",
+        arabicTrans: "شهر يناير هو أول شهر في السنة الميلادية.",
+        iconSvg: `<span class="text-2xl sm:text-3xl" title="احتفال بداية العام">🎉</span>`
+      },
+      {
+        id: 4,
+        correct: "April",
+        templateText: "is the 4th month in the year.....",
+        fullText: "April is the 4th month in the year.",
+        arabicTrans: "شهر أبريل هو الشهر الرابع في السنة.",
+        iconSvg: `<span class="en-font font-black text-2xl sm:text-3xl text-sky-600 border-2 border-sky-400 rounded-xl px-2 py-0.5 bg-sky-50">4</span>`
+      },
+      {
+        id: 5,
+        correct: "September",
+        templateText: "has our national day.",
+        fullText: "September has our national day.",
+        arabicTrans: "شهر سبتمبر به اليوم الوطني للمملكة العربية السعودية.",
+        iconSvg: `<span class="text-2xl sm:text-3xl" title="اليوم الوطني السعودي">🇸🇦</span>`
+      }
+    ];
+
+    // State
+    const arrangeSlotsState = {};
+    for (let i = 1; i <= 12; i++) arrangeSlotsState[i] = null;
+
+    const completeSlotsState = {};
+    for (let i = 1; i <= 5; i++) completeSlotsState[i] = null;
+
+    let selectedArrangePill = null;
+    let selectedCompletePill = null;
+    let isReadingAll = false;
+
+    /* =========================================================================
+       RENDER EXERCISE 1 (ARRANGE 1 TO 12)
+       ========================================================================= */
+
+    function renderArrangeWordBank() {
+      const bankEl = document.getElementById('arrangeWordBank');
+      bankEl.innerHTML = '';
+
+      ARRANGE_PILLS.forEach(pill => {
+        const isUsed = Object.values(arrangeSlotsState).includes(pill.name);
+
+        const pillDiv = document.createElement('div');
+        pillDiv.id = `arrange-pill-${pill.name}`;
+        pillDiv.className = `word-pill ${pill.bg} border-2 ${pill.border} ${pill.text} px-3 sm:px-4 py-1.5 rounded-2xl font-black en-font text-sm sm:text-base shadow-2xs ${isUsed ? 'used-pill' : ''}`;
+        pillDiv.setAttribute('draggable', isUsed ? 'false' : 'true');
+        pillDiv.innerHTML = `<span>${pill.name}</span>`;
+
+        // Click / Tap Handler
+        pillDiv.onclick = () => {
+          if (isUsed) return;
+          sfx.playPop();
+          canadianSpeaker.speak(pill.name);
+          handleArrangePillSelect(pill.name, pillDiv);
+        };
+
+        // Drag Handler
+        pillDiv.ondragstart = (e) => {
+          if (isUsed) { e.preventDefault(); return; }
+          e.dataTransfer.setData("text/plain", pill.name);
+          selectedArrangePill = { name: pill.name, el: pillDiv };
+          sfx.playPop();
+        };
+
+        bankEl.appendChild(pillDiv);
+      });
+    }
+
+    function renderArrangeSlots() {
+      const colLeft = document.getElementById('arrangeColLeft');
+      const colRight = document.getElementById('arrangeColRight');
+      colLeft.innerHTML = '';
+      colRight.innerHTML = '';
+
+      MONTHS_ORDER.forEach(m => {
+        const slotEl = document.createElement('div');
+        slotEl.id = `arrange-slot-${m.num}`;
+        slotEl.className = "flex items-center gap-2 p-2 rounded-2xl border-2 border-slate-200 bg-white hover:border-sky-300 transition group";
+
+        const val = arrangeSlotsState[m.num];
+        const isCorrect = (val === m.name);
+
+        let contentHtml = '';
+        if (val) {
+          if (isCorrect) {
+            slotEl.classList.remove('border-slate-200', 'hover:border-sky-300', 'border-rose-400', 'bg-rose-50/50');
+            slotEl.classList.add('border-emerald-500', 'bg-emerald-50/60');
+            contentHtml = `
+              <div onclick="clearArrangeSlot(${m.num})" class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 border-2 border-emerald-500 rounded-xl font-black en-font text-sm sm:text-base text-emerald-950 shadow-2xs cursor-pointer hover:bg-rose-100 transition" title="انقر للإزالة والتغيير">
+                <span>${val}</span>
+                <span class="text-xs bg-emerald-600 text-white font-bold px-1.5 py-0.2 rounded-md">✓ صحيح</span>
+              </div>
+            `;
+          } else {
+            slotEl.classList.remove('border-slate-200', 'hover:border-sky-300', 'border-emerald-500', 'bg-emerald-50/60');
+            slotEl.classList.add('border-rose-400', 'bg-rose-50/50');
+            contentHtml = `
+              <div onclick="clearArrangeSlot(${m.num})" class="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-100 border-2 border-rose-400 rounded-xl font-black en-font text-sm sm:text-base text-rose-950 shadow-2xs cursor-pointer hover:bg-rose-200 transition" title="انقر للإزالة والتصحيح">
+                <span class="line-through decoration-rose-600">${val}</span>
+                <span class="text-xs bg-rose-600 text-white font-bold px-1.5 py-0.2 rounded-md">✗ غير صحيح</span>
+              </div>
+            `;
+          }
+        } else {
+          contentHtml = `
+            <div onclick="handleArrangeSlotClick(${m.num})" ondragover="event.preventDefault(); this.classList.add('drag-over');" ondragleave="this.classList.remove('drag-over');" ondrop="handleArrangeDrop(event, ${m.num})" class="drop-slot flex-1 flex items-center cursor-pointer min-h-[38px] rounded-xl px-2 hover:bg-sky-50 transition border border-dashed border-transparent hover:border-sky-300">
+              <span class="text-slate-400 text-xs sm:text-sm font-bold tracking-widest">................................................</span>
+            </div>
+          `;
+        }
+
+        slotEl.innerHTML = `
+          <!-- Number Badge Circle -->
+          <div class="w-8 h-8 rounded-full ${m.badgeBg} text-white font-black en-font text-sm sm:text-base flex items-center justify-center shrink-0 shadow-xs">
+            ${m.num}
+          </div>
+
+          <!-- Dotted Line / Slot content -->
+          <div class="flex-1 flex items-center overflow-hidden">
+            ${contentHtml}
+          </div>
+
+          <!-- Sound Icon to hear English & Arabic pronunciation -->
+          <button onclick="playMonthSlotAudio(${m.num})" class="w-7 h-7 rounded-xl bg-slate-100 hover:bg-sky-100 text-slate-600 hover:text-sky-700 flex items-center justify-center text-xs transition shrink-0" title="استمع لنطق الشهر">
+            🔊
+          </button>
+        `;
+
+        if (m.num <= 6) {
+          colLeft.appendChild(slotEl);
+        } else {
+          colRight.appendChild(slotEl);
+        }
+      });
+    }
+
+    // Clear Slot
+    function clearArrangeSlot(num) {
+      sfx.playPop();
+      arrangeSlotsState[num] = null;
+      renderArrangeSlots();
+      renderArrangeWordBank();
+      updateScoreBadge();
+    }
+
+    function handleArrangePillSelect(name, el) {
+      if (selectedArrangePill && selectedArrangePill.name === name) {
+        selectedArrangePill.el.classList.remove('selected-pill');
+        selectedArrangePill = null;
+      } else {
+        document.querySelectorAll('#arrangeWordBank .word-pill').forEach(p => p.classList.remove('selected-pill'));
+        selectedArrangePill = { name, el };
+        el.classList.add('selected-pill');
+        showToast("تم اختيار: " + name, "انقر على رقم الخانة المناسبة (1-12) لوضع الشهر فيها", "📌");
+      }
+    }
+
+    function handleArrangeDrop(e, slotNum) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      const droppedName = e.dataTransfer.getData("text/plain") || (selectedArrangePill ? selectedArrangePill.name : null);
+      if (droppedName) {
+        placeArrangePill(slotNum, droppedName);
+      }
+    }
+
+    function handleArrangeSlotClick(slotNum) {
+      if (selectedArrangePill) {
+        placeArrangePill(slotNum, selectedArrangePill.name);
+      } else if (arrangeSlotsState[slotNum]) {
+        clearArrangeSlot(slotNum);
+      } else {
+        sfx.playPop();
+        showToast("اختر شهراً أولاً", "انقر على أحد شهور السنة في الصندوق بالأعلى ثم انقر في الفراغ", "👆");
+      }
+    }
+
+    // Prominent Instant Feedback Response (Modal Toast)
+    function showFeedbackResponse(isCorrect, subText) {
+      const toast = document.getElementById('toastNotification');
+      if (!toast) return;
+      const innerBox = toast.querySelector('div');
+      const titleEl = document.getElementById('toastTitle');
+      const msgEl = document.getElementById('toastMsg');
+      const iconEl = document.getElementById('toastIcon');
+
+      if (isCorrect) {
+        innerBox.className = "bg-emerald-600 text-white px-6 py-3.5 rounded-2xl shadow-2xl border-2 border-emerald-300 flex items-center gap-3 backdrop-blur-md transform scale-105 transition duration-200";
+        iconEl.textContent = "✅";
+        titleEl.className = "text-base sm:text-lg font-black text-white";
+        titleEl.textContent = "الإجابة صحيحة";
+        msgEl.className = "text-xs text-emerald-100 font-medium";
+        msgEl.textContent = subText || "أحسنت! إجابة صحيحة ودقيقة.";
+      } else {
+        innerBox.className = "bg-rose-600 text-white px-6 py-3.5 rounded-2xl shadow-2xl border-2 border-rose-300 flex items-center gap-3 backdrop-blur-md transform scale-105 transition duration-200";
+        iconEl.textContent = "❌";
+        titleEl.className = "text-base sm:text-lg font-black text-white";
+        titleEl.textContent = "إجابة خاطئة";
+        msgEl.className = "text-xs text-rose-100 font-medium";
+        msgEl.textContent = subText || "انقر على الكلمة للإزالة وحاول مجدداً!";
+      }
+
+      toast.classList.remove('translate-y-28', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-28', 'opacity-0');
+      }, 2600);
+    }
+
+    // Place Pill and trigger feedback
+    function placeArrangePill(slotNum, monthName) {
+      const correctMonth = MONTHS_ORDER.find(m => m.num === slotNum).name;
+      const isCorrect = (monthName === correctMonth);
+
+      // If month in another slot, clear it
+      for (let s in arrangeSlotsState) {
+        if (arrangeSlotsState[s] === monthName) {
+          arrangeSlotsState[s] = null;
+        }
+      }
+
+      arrangeSlotsState[slotNum] = monthName;
+      selectedArrangePill = null;
+
+      renderArrangeSlots();
+      renderArrangeWordBank();
+      updateScoreBadge();
+
+      const slotEl = document.getElementById(`arrange-slot-${slotNum}`);
+
+      if (isCorrect) {
+        sfx.playSuccess();
+        speakArabicFeedback(true, () => {
+          // Speak English month name with Canadian speaker
+          canadianSpeaker.speak(monthName);
+        });
+        if (slotEl) {
+          slotEl.classList.remove('shake-slot');
+          slotEl.classList.add('pop-success');
+        }
+        showFeedbackResponse(true, `شهر ${monthName} هو الترتيب الصحيح للخانة (${slotNum})`);
+        fireConfetti(0.35);
+      } else {
+        sfx.playError();
+        speakArabicFeedback(false);
+        if (slotEl) {
+          slotEl.classList.remove('pop-success');
+          slotEl.classList.add('shake-slot');
+        }
+        showFeedbackResponse(false, `شهر ${monthName} ليس الشهر رقم (${slotNum}). انقر للتغيير`);
+      }
+    }
+
+    function playMonthSlotAudio(slotNum) {
+      const targetMonth = MONTHS_ORDER.find(m => m.num === slotNum);
+      const placed = arrangeSlotsState[slotNum];
+      const textToSpeak = placed ? `${slotNum}. ${placed}` : `${slotNum}. ${targetMonth.name}`;
+      
+      const slotEl = document.getElementById(`arrange-slot-${slotNum}`);
+      if (slotEl) slotEl.classList.add('sync-active-audio');
+
+      canadianSpeaker.speak(textToSpeak, () => {
+        if (slotEl) slotEl.classList.remove('sync-active-audio');
+      });
+    }
+
+    /* =========================================================================
+       RENDER EXERCISE 2 (COMPLETE: FILL IN THE BLANKS)
+       ========================================================================= */
+
+    function renderCompleteWordBank() {
+      const bankEl = document.getElementById('completeWordBank');
+      bankEl.innerHTML = '';
+
+      COMPLETE_PILLS.forEach(pill => {
+        const isUsed = Object.values(completeSlotsState).includes(pill.name);
+
+        const pillDiv = document.createElement('div');
+        pillDiv.id = `complete-pill-${pill.name}`;
+        pillDiv.className = `word-pill ${pill.bg} border-2 ${pill.border} ${pill.text} px-5 py-2 rounded-2xl font-black en-font text-base sm:text-lg shadow-xs ${isUsed ? 'used-pill' : ''}`;
+        pillDiv.setAttribute('draggable', isUsed ? 'false' : 'true');
+        pillDiv.innerHTML = `<span>${pill.name}</span>`;
+
+        pillDiv.onclick = () => {
+          if (isUsed) return;
+          sfx.playPop();
+          canadianSpeaker.speak(pill.name);
+          handleCompletePillSelect(pill.name, pillDiv);
+        };
+
+        pillDiv.ondragstart = (e) => {
+          if (isUsed) { e.preventDefault(); return; }
+          e.dataTransfer.setData("text/plain", pill.name);
+          selectedCompletePill = { name: pill.name, el: pillDiv };
+          sfx.playPop();
+        };
+
+        bankEl.appendChild(pillDiv);
+      });
+    }
+
+    function renderCompleteSentences() {
+      const container = document.getElementById('completeSentencesList');
+      container.innerHTML = '';
+
+      COMPLETE_SENTENCES.forEach(item => {
+        const card = document.createElement('div');
+        card.id = `complete-row-${item.id}`;
+
+        const val = completeSlotsState[item.id];
+        let slotContentHtml = '';
+        let cardBorderClass = 'border-slate-200 hover:border-sky-300';
+        let feedbackContent = '';
+
+        if (val) {
+          const isCorrect = (val === item.correct);
+          if (isCorrect) {
+            cardBorderClass = 'border-emerald-500 bg-emerald-50/40';
+            slotContentHtml = `
+              <div onclick="clearCompleteSlot(${item.id})" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-100/90 border-2 border-emerald-500 rounded-xl font-black en-font text-sm sm:text-base text-emerald-950 shadow-2xs cursor-pointer hover:bg-rose-100 transition" title="انقر للإزالة">
+                <span>${val}</span>
+                <span class="text-xs bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded-md">✓ صحيح</span>
+              </div>
+            `;
+            feedbackContent = `
+              <span class="text-xs font-black text-emerald-600 flex items-center gap-1">
+                <span>✅</span> إجابة صحيحة وممتازة! (${val})
+              </span>
+            `;
+          } else {
+            cardBorderClass = 'border-rose-400 bg-rose-50/40';
+            slotContentHtml = `
+              <div onclick="clearCompleteSlot(${item.id})" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-rose-100/90 border-2 border-rose-400 rounded-xl font-black en-font text-sm sm:text-base text-rose-950 shadow-2xs cursor-pointer hover:bg-rose-200 transition" title="انقر للإزالة">
+                <span class="line-through decoration-rose-600">${val}</span>
+                <span class="text-xs bg-rose-600 text-white font-bold px-1.5 py-0.5 rounded-md">✗ غير صحيح</span>
+              </div>
+            `;
+            feedbackContent = `
+              <span class="text-xs font-black text-rose-600 flex items-center gap-1">
+                <span>❌</span> إجابة خاطئة! انقر على الكلمة للإزالة وجرب شهراً آخر
+              </span>
+            `;
+          }
+        } else {
+          slotContentHtml = `
+            <div onclick="handleCompleteSlotClick(${item.id})" ondragover="event.preventDefault(); this.classList.add('drag-over');" ondragleave="this.classList.remove('drag-over');" ondrop="handleCompleteDrop(event, ${item.id})" class="drop-slot inline-flex items-center justify-center px-4 py-1.5 bg-slate-50 border-2 border-dashed border-slate-400 rounded-xl text-slate-400 text-xs sm:text-sm font-bold tracking-widest min-w-[120px] cursor-pointer hover:border-sky-500 transition">
+              ...........................
+            </div>
+          `;
+          feedbackContent = `
+            <span class="text-slate-400 text-[11px] font-medium" dir="rtl">اسحب أو انقر لوضع الشهر المناسب</span>
+          `;
+        }
+
+        card.className = `p-3 sm:p-3.5 rounded-2xl bg-white border-2 ${cardBorderClass} transition shadow-xs`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+            
+            <div class="flex items-center gap-2.5 flex-1 flex-wrap sm:flex-nowrap">
+              <!-- Number badge -->
+              <span class="w-7 h-7 rounded-full bg-slate-800 text-white font-extrabold en-font text-xs sm:text-sm flex items-center justify-center shrink-0">
+                ${item.id}
+              </span>
+
+              <!-- Slot Container -->
+              ${slotContentHtml}
+
+              <!-- Sentence Text -->
+              <span class="en-font font-bold text-slate-800 text-sm sm:text-base">
+                ${item.templateText}
+              </span>
+            </div>
+
+            <!-- Right Icon & Audio Button -->
+            <div class="flex items-center gap-2 shrink-0">
+              ${item.iconSvg}
+              <button onclick="playCompleteSentenceAudio(${item.id})" class="w-8 h-8 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 flex items-center justify-center text-sm transition" title="استمع للجملة كاملة">
+                🔊
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Arabic Translation Subtitle & Instant Feedback -->
+          <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500 flex-wrap gap-2" dir="rtl">
+            <span>الترجمة: ${item.arabicTrans}</span>
+            <div id="complete-feedback-${item.id}">
+              ${feedbackContent}
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function handleCompletePillSelect(name, el) {
+      if (selectedCompletePill && selectedCompletePill.name === name) {
+        selectedCompletePill.el.classList.remove('selected-pill');
+        selectedCompletePill = null;
+      } else {
+        document.querySelectorAll('#completeWordBank .word-pill').forEach(p => p.classList.remove('selected-pill'));
+        selectedCompletePill = { name, el };
+        el.classList.add('selected-pill');
+        showToast("الشهر المحدد: " + name, "انقر على الفراغ المناسب في الجمل بالأسفل لوضعه", "💡");
+      }
+    }
+
+    function handleCompleteSlotClick(sentenceId) {
+      if (selectedCompletePill) {
+        placeCompletePill(sentenceId, selectedCompletePill.name);
+      } else {
+        sfx.playPop();
+        showToast("اختر شهراً أولاً", "انقر على أحد الشهور في صندوق الإكمال ثم انقر في الفراغ", "👆");
+      }
+    }
+
+    function handleCompleteDrop(e, sentenceId) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      const droppedName = e.dataTransfer.getData("text/plain") || (selectedCompletePill ? selectedCompletePill.name : null);
+      if (droppedName) {
+        placeCompletePill(sentenceId, droppedName);
+      }
+    }
+
+    function placeCompletePill(sentenceId, monthName) {
+      const item = COMPLETE_SENTENCES.find(s => s.id === sentenceId);
+      const isCorrect = (monthName === item.correct);
+
+      // If month in another slot, clear it
+      for (let s in completeSlotsState) {
+        if (completeSlotsState[s] === monthName) {
+          completeSlotsState[s] = null;
+        }
+      }
+
+      completeSlotsState[sentenceId] = monthName;
+      selectedCompletePill = null;
+
+      renderCompleteSentences();
+      renderCompleteWordBank();
+      updateScoreBadge();
+
+      const rowEl = document.getElementById(`complete-row-${sentenceId}`);
+
+      if (isCorrect) {
+        sfx.playSuccess();
+        speakArabicFeedback(true, () => {
+          canadianSpeaker.speak(`${monthName} ${item.templateText}`);
+        });
+        if (rowEl) {
+          rowEl.classList.remove('shake-slot');
+          rowEl.classList.add('pop-success');
+        }
+        showFeedbackResponse(true, `شهر ${monthName} هو الحل الصحيح للجملة رقم (${sentenceId})`);
+        fireConfetti(0.4);
+      } else {
+        sfx.playError();
+        speakArabicFeedback(false);
+        if (rowEl) {
+          rowEl.classList.remove('pop-success');
+          rowEl.classList.add('shake-slot');
+        }
+        showFeedbackResponse(false, `شهر ${monthName} إجابة خاطئة للجملة رقم (${sentenceId}). انقر وحاول ثانية`);
+      }
+    }
+
+    function clearCompleteSlot(sentenceId) {
+      sfx.playPop();
+      completeSlotsState[sentenceId] = null;
+      renderCompleteSentences();
+      renderCompleteWordBank();
+      updateScoreBadge();
+    }
+
+    function playCompleteSentenceAudio(sentenceId) {
+      const item = COMPLETE_SENTENCES.find(s => s.id === sentenceId);
+      const val = completeSlotsState[sentenceId];
+      const textToSpeak = val ? `${val} ${item.templateText}` : item.fullText;
+
+      const rowEl = document.getElementById(`complete-row-${sentenceId}`);
+      if (rowEl) rowEl.classList.add('sync-active-audio');
+
+      canadianSpeaker.speak(textToSpeak, () => {
+        if (rowEl) rowEl.classList.remove('sync-active-audio');
+      });
+    }
+
+    /* =========================================================================
+       AUDIO PLAYBACK FOR ALL MONTHS IN ORDER (1 TO 12)
+       ========================================================================= */
+
+    function readAllMonthsInOrder() {
+      if (isReadingAll) {
+        // Stop playback
+        isReadingAll = false;
+        window.speechSynthesis.cancel();
+        document.querySelectorAll('.sync-active-audio').forEach(el => el.classList.remove('sync-active-audio'));
+        document.getElementById('readAllBtnText').textContent = "قراءة الشهور بالترتيب";
+        document.getElementById('readAllBtn').className = "px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 active:scale-95 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm";
+        return;
+      }
+
+      isReadingAll = true;
+      document.getElementById('readAllBtnText').textContent = "⏹️ إيقاف القراءة";
+      document.getElementById('readAllBtn').className = "px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm";
+
+      let currentIdx = 0;
+
+      function speakNext() {
+        if (!isReadingAll || currentIdx >= MONTHS_ORDER.length) {
+          isReadingAll = false;
+          document.getElementById('readAllBtnText').textContent = "قراءة الشهور بالترتيب";
+          document.getElementById('readAllBtn').className = "px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 active:scale-95 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-sm";
+          document.querySelectorAll('.sync-active-audio').forEach(el => el.classList.remove('sync-active-audio'));
+          return;
+        }
+
+        const m = MONTHS_ORDER[currentIdx];
+        const slotEl = document.getElementById(`arrange-slot-${m.num}`);
+
+        document.querySelectorAll('.sync-active-audio').forEach(el => el.classList.remove('sync-active-audio'));
+        if (slotEl) {
+          slotEl.classList.add('sync-active-audio');
+          slotEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        const text = `Number ${m.num}, ${m.name}`;
+        canadianSpeaker.speak(text, () => {
+          currentIdx++;
+          setTimeout(speakNext, 500);
+        });
+      }
+
+      speakNext();
+    }
+
+    /* =========================================================================
+       SCORING & RESET & HELPERS
+       ========================================================================= */
+
+    function updateScoreBadge() {
+      let score = 0;
+      // Exercise 1 score (out of 12)
+      MONTHS_ORDER.forEach(m => {
+        if (arrangeSlotsState[m.num] === m.name) score++;
+      });
+      // Exercise 2 score (out of 5)
+      COMPLETE_SENTENCES.forEach(s => {
+        if (completeSlotsState[s.id] === s.correct) score++;
+      });
+
+      document.getElementById('scoreDisplay').textContent = `${score} / 17`;
+
+      if (score === 17) {
+        fireConfetti(1.2);
+        showFeedbackResponse(true, "ما شاء الله! حصلت على الدرجة الكاملة 17 من 17 🌟");
+      }
+    }
+
+    function checkAllAnswers() {
+      sfx.playPop();
+      let correctCount = 0;
+      let totalFilled = 0;
+
+      MONTHS_ORDER.forEach(m => {
+        if (arrangeSlotsState[m.num]) totalFilled++;
+        if (arrangeSlotsState[m.num] === m.name) correctCount++;
+      });
+
+      COMPLETE_SENTENCES.forEach(s => {
+        if (completeSlotsState[s.id]) totalFilled++;
+        if (completeSlotsState[s.id] === s.correct) correctCount++;
+      });
+
+      if (totalFilled === 0) {
+        showToast("ابدأ بالحل أولاً", "قم بسحب أو وضع الشهور في الفراغات للتحقق", "💡");
+        return;
+      }
+
+      if (correctCount === 17) {
+        sfx.playSuccess();
+        speakArabicFeedback(true);
+        showFeedbackResponse(true, "تهانينا! جميع الإجابات صحيحة ومكتملة بنجاح 💯");
+        fireConfetti(1.0);
+      } else {
+        const remaining = 17 - correctCount;
+        sfx.playError();
+        speakArabicFeedback(false);
+        showFeedbackResponse(false, `لديك ${correctCount} إجابات صحيحة، و${remaining} فراغ بحاجة للتصحيح أو الإكمال`);
+      }
+    }
+
+    function resetWorksheet() {
+      sfx.playPop();
+      if (isReadingAll) readAllMonthsInOrder(); // Stop reading if active
+
+      for (let i = 1; i <= 12; i++) arrangeSlotsState[i] = null;
+      for (let i = 1; i <= 5; i++) completeSlotsState[i] = null;
+
+      selectedArrangePill = null;
+      selectedCompletePill = null;
+
+      renderArrangeWordBank();
+      renderArrangeSlots();
+      renderCompleteWordBank();
+      renderCompleteSentences();
+      updateScoreBadge();
+
+      showToast("إعادة تعيين", "تم مسح جميع الإجابات لتتمكن من حل الورقة من جديد", "🔄");
+    }
+
+    function showToast(title, message, icon = "✨") {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastMsg').textContent = message;
+      document.getElementById('toastIcon').textContent = icon;
+
+      toast.classList.remove('translate-y-28', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-28', 'opacity-0');
+      }, 2600);
+    }
+
+    function fireConfetti(power = 0.5) {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: Math.floor(80 * power),
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+      }
+    }
+
+    /* =========================================================================
+       INITIALIZATION
+       ========================================================================= */
+
+    window.onload = function() {
+      renderArrangeWordBank();
+      renderArrangeSlots();
+      renderCompleteWordBank();
+      renderCompleteSentences();
+      updateScoreBadge();
+    };
+  </script>
+</body>
+</html>
